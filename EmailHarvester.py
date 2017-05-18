@@ -72,7 +72,8 @@ class myparser:
     def emails(self):
         self.genericClean()
         reg_emails = re.compile(
-            '[a-zA-Z0-9.\-_+#~!$&\',;=:]+' +
+           # r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+            '^[a-zA-Z0-9.\-_+#~!$&\',;=:]+' +
             '@' +
             '[a-zA-Z0-9.-]*' +
             self.word)
@@ -132,16 +133,18 @@ class EmailHarvester(object):
                 r=requests.get(urly, headers=headers, proxies=proxies)
             else:
                 r=requests.get(urly, headers=headers)
+
+            if r.encoding is None:
+                r.encoding = 'UTF-8'
+            self.results = r.content.decode(r.encoding)
+            self.totalresults += self.results
                 
         except Exception as e:
             print(e)
-            sys.exit(4)
+            print("Continuing...")
 
-        if r.encoding is None:
-	          r.encoding = 'UTF-8'
 
-        self.results = r.content.decode(r.encoding)
-        self.totalresults += self.results
+
     
     def process(self):
         while (self.counter < self.limit):
